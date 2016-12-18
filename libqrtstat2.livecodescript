@@ -28,8 +28,15 @@ licenses@quartam.com
 constant kLibVersion = "2.0.0"
 constant kLibErrorPrefix = "qrtstaterr: "
 
---> script variables
+-- comma-separated list of supported algorithms
+constant kQuartileAlgorithms = "excludeMedian,includeMedian,weightedAverage"
 
+-- default setting keys	
+constant kDefaultQuartileAlgorithm = "QuartileAlgorithm"
+
+--> script local variables
+
+local sDefaultsA
 local sLC61OrNewer, sLC66OrNewer
 
 --> engine message handlers
@@ -51,6 +58,27 @@ function qrtSTAT_VersionNumber
    -- deprecated synonym
    return qrtSTAT_Version()
 end qrtSTAT_VersionNumber
+
+function qrtSTAT_QuartileAlgorithms
+   -- return-delimited list of supported quartile algorithms
+   local tQuartileAlgorithms
+   put kQuartileAlgorithms into tQuartileAlgorithms
+   replace comma with return in tQuartileAlgorithms
+   return tQuartileAlgorithms
+end qrtSTAT_QuartileAlgorithms
+
+function qrtSTAT_QuartileAlgorithm
+   returns sDefaultsA[kDefaultQuartileAlgorithm]
+end qrtSTAT_QuartileAlgorithm
+
+command qrtSTAT_SetQuartileAlgorithm pQuartileAlgorithm
+   p_qrtSTAT_AssertQuartileAlgorithm pQuartileAlgorithm
+   put pQuartileAlgorithm into sDefaultsA[kDefaultQuartileAlgorithm]
+end qrtSTAT_SetQuartileAlgorithm
+
+command qrtSTAT_ResetAll
+   p_qrtSTAT_ResetAll
+end qrtSTAT_ResetAll
 
 function qrtSTAT_AverageDeviation pNumbersList
    -- fast path in case of LiveCode 6.6 or newer
@@ -199,10 +227,121 @@ function qrtSTAT_PopulationVariance pNumbersList
    end if
 end qrtSTAT_PopulationVariance
 
+function qrtSTAT_Quartiles pNumbersList, pQuartileAlgorithm
+   if pQuartileAlgorithm is empty then
+      put sDefaultsA[kDefaultQuartileAlgorithm] into pQuartileAlgorithm
+   else
+      p_qrtSTAT_AssertQuartileAlgorithm pQuartileAlgorithm
+   end if
+   --
+   return p_qrtSTAT_Quartiles(pNumbersList, pQuartileAlgorithm, true, true, true)
+end qrtSTAT_Quartiles
+
 --> private commands and functions
 
 private command p_qrtSTAT_ResetAll
    set the itemDelimiter to "."
    put (item 1 to 2 of the version) >= 6.1 into sLC61OrNewer
    put (item 1 to 2 of the version) >= 6.6 into sLC66OrNewer
+   put "weightedAverage" into sDefaultsA[kDefaultQuartileAlgorithm]
 end p_qrtSTAT_ResetAll
+
+private command p_qrtSTAT_AssertQuartileAlgorithm pAlgorithm
+   if pAlgorithm is not among the items of kQuartileAlgorithms then	
+      throw kLibErrorPrefix & "QuartileAlgorithm must be one of '" & kQuartileAlgorithms & "'"
+   end if
+end p_qrtSTAT_AssertQuartileAlgorithm
+
+private function p_qrtSTAT_Quartiles @pNumbersList, pQuartileAlgorithm, pCalcQ1, pCalcQ2, pCalcQ3
+   local tSortedNumbersList, tCount
+   if pNumbersList is an array then
+      p_qrtSTAT_ConvertNumbersArrayToList pNumbersList, tSortedNumbersList, tCount
+   else
+      put pNumbersList into tSortedNumbersList
+      put the number of items in pNumbersList into tCount
+   end if
+   sort tSortedNumbersList ascending numeric
+   --
+   local tQ1, tQ2, tQ3
+   if pCalcQ2 then
+      put p_qrtSTAT_SortedNumbersSubListMedian(tSortedNumbersList, 1, tCount) into tQ2
+   end if
+   local tQ2End, tQ3Start
+   if tCount mod 2 = 0 then
+      put tCount div 2 into tQ2End
+      put tQ2End + 1 into tQ3Start
+      if pCalcQ1 then
+         put p_qrtSTAT_SortedNumbersSubListMedian(tSortedNumbersList, 1, tQ2End) into tQ1
+      end if
+      if pCalcQ3 then
+         put p_qrtSTAT_SortedNumbersSubListMedian(tSortedNumbersList, tQ3Start, tCount) into tQ3
+      end if
+   else
+      switch pQuartileAlgorithm
+         case "excludeMedian"
+            -- corresponds to Method 1 in the Wikipedia article
+            put tCount div 2 into tQ2End
+            put tQ2End + 1 into tQ3Start
+            if pCalcQ1 then
+               put p_qrtSTAT_SortedNumbersSubListMedian(tSortedNumbersList, 1, tQ2End) into tQ1
+            end if
+            if pCalcQ3 then
+               put p_qrtSTAT_SortedNumbersSubListMedian(tSortedNumbersList, tQ3Start, tCount) into tQ3
+            end if
+            break
+         case "includeMedian"
+            -- corresponds to Method 2 in the Wikipedia article
+            put tCount div 2 + 1 into tQ2End
+            put tQ2End into tQ3Start
+            if pCalcQ1 then
+               put p_qrtSTAT_SortedNumbersSubListMedian(tSortedNumbersList, 1, tQ2End) into tQ1
+            end if
+            if pCalcQ3 then
+               put p_qrtSTAT_SortedNumbersSubListMedian(tSortedNumbersList, tQ3Start, tCount) into tQ3
+            end if
+            break
+         case "weightedAverage"
+            -- corresponds to Method 3 in the Wikipedia article
+            local tQIndex
+            put tCount div 4 into tQIndex
+            if tCount mod 4 = 1 then
+               if pCalcQ1 then
+                  put (1 / 4) * (item tQIndex of tSortedNumbersList) + (3 / 4) * (item tQIndex + 1 of tSortedNumbersList) into tQ1
+               end if
+               if pCalcQ3 then
+                  put (3 / 4) * (item 3 * tQIndex + 1 of tSortedNumbersList) + (1 / 4) * (item 3 * tQIndex + 1 of tSortedNumbersList) into tQ3
+               end if
+            else if tCount mod 4 = 3 then
+               if pCalcQ1 then
+                  put (3 / 4) * (item tQIndex + 1 of tSortedNumbersList) + (1 / 4) * (item tQIndex + 2 of tSortedNumbersList) into tQ1
+               end if
+               if pCalcQ3 then
+                  put (1 / 4) * (item 3 * tQIndex + 2 of tSortedNumbersList) + (3 / 4) * (item 3 * tQIndex + 3 of tSortedNumbersList) into tQ3
+               end if
+            end if
+            break
+      end switch
+   end if
+   return (tQ1,tQ2,tQ3)
+end p_qrtSTAT_Quartiles
+
+private command p_qrtSTAT_ConvertNumbersArrayToList @pNumbersArray, @rNumbersList, @rCount
+   put empty into rNumbersList
+   put 0 into rCount
+   repeat for each element tNumber in pNumbersArray
+      put tNumber & comma after rNumbersList
+      add 1 to rCount
+   end repeat
+   delete char -1 of rNumbersList
+end p_qrtSTAT_ConvertNumbersArrayToList
+
+private function p_qrtSTAT_SortedNumbersSubListMedian @pSortedNumbersList, pStartIndex, pEndIndex
+   local tRangeSize, tMidIndex
+   put pEndIndex - pStartIndex + 1 into tRangeSize
+   put pStartIndex + tRangeSize div 2 into tMidIndex
+   if tRangeSize mod 2 = 0 then
+      return ((item tMidIndex - 1 of pSortedNumbersList) + (item tMidIndex of pSortedNumbersList)) / 2
+   else
+      return item tMidIndex of pSortedNumbersList
+   end if
+end p_qrtSTAT_SortedNumbersSubListMedian
