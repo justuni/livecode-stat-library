@@ -179,6 +179,18 @@ function qrtSTAT_InterQuartileRange pNumbersList, pQuartileAlgorithm
    return (item 3 of tQuartiles) - (item 1 of tQuartiles)
 end qrtSTAT_InterQuartileRange
 
+function qrtSTAT_Midhinge pNumbersList, pQuartileAlgorithm
+   if pQuartileAlgorithm is empty then
+      put sDefaultsA[kDefaultQuartileAlgorithm] into pQuartileAlgorithm
+   else
+      p_qrtSTAT_AssertQuartileAlgorithm pQuartileAlgorithm
+   end if
+   --
+   local tQuartiles
+   put p_qrtSTAT_Quartiles(pNumbersList, pQuartileAlgorithm, true, false, true) into tQuartiles
+   return ((item 1 of tQuartiles) + (item 3 of tQuartiles)) / 2
+end qrtSTAT_Midhinge
+
 function qrtSTAT_Mode pNumbersList
    local tNumber, tNumberOccurencesA
    if pNumbersList is an array then
