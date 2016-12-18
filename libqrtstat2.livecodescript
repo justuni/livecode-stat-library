@@ -26,6 +26,7 @@ licenses@quartam.com
 --> constants
 
 constant kLibVersion = "2.0.0"
+constant kLibErrorPrefix = "qrtstaterr: "
 
 --> public commands and functions
 
