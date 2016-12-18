@@ -29,8 +29,13 @@ constant kLibVersion = "2.0.0"
 
 --> public commands and functions
 
-function qrtSTAT_VersionNumber
+function qrtSTAT_Version
    return kLibVersion
+end qrtSTAT_Version
+
+function qrtSTAT_VersionNumber
+   -- deprecated synonym
+   return qrtSTAT_Version()
 end qrtSTAT_VersionNumber
 
 function qrtSTAT_AverageDeviation pNumbersList
