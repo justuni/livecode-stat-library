@@ -1,7 +1,7 @@
-script "libqrtstat2"
+﻿script "libqrtstat2"
 /*
 Quartam Statistical Functions Library for LiveCode [libqrtstat.livecode]
-Copyright (C) 2011-2013 Quartam Software / Jan Schenkel
+Copyright (C) 2011-2016 Quartam Software / Jan Schenkel
 
 This program is free software; you can redistribute it and/or modify 
 it under the terms of the GNU Lesser General Public License as 
@@ -25,7 +25,7 @@ licenses@quartam.com
 
 --> constants
 
-constant kLibVersion = "1.0.0"
+constant kLibVersion = "2.0.0"
 
 --> public commands and functions
 
