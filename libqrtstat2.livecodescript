@@ -28,6 +28,19 @@ licenses@quartam.com
 constant kLibVersion = "2.0.0"
 constant kLibErrorPrefix = "qrtstaterr: "
 
+--> script variables
+
+local sLC61OrNewer, sLC66OrNewer
+
+--> engine message handlers
+
+on libraryStack
+   if the target is me then
+      p_qrtSTAT_ResetAll
+   end if
+   pass libraryStack
+end libraryStack
+
 --> public commands and functions
 
 function qrtSTAT_Version
@@ -40,6 +53,9 @@ function qrtSTAT_VersionNumber
 end qrtSTAT_VersionNumber
 
 function qrtSTAT_AverageDeviation pNumbersList
+   -- fast path in case of LiveCode 6.6 or newer
+   if sLC66OrNewer then return averageDeviation(pNumbersList)
+   -- slow path in older versions
    local tCount
    if pNumbersList is an array then
       put the number of elements in pNumbersList into tCount
@@ -66,6 +82,9 @@ function qrtSTAT_AverageDeviation pNumbersList
 end qrtSTAT_AverageDeviation
 
 function qrtSTAT_GeometricMean pNumbersList
+   -- fast path in case of LiveCode 6.1 or newer
+   if sLC61OrNewer then return geometricMean(pNumbersList)
+   -- slow path in older versions
    local tCount
    if pNumbersList is an array then
       put the number of elements in pNumbersList into tCount
@@ -93,6 +112,9 @@ function qrtSTAT_GeometricMean pNumbersList
 end qrtSTAT_GeometricMean
 
 function qrtSTAT_HarmonicMean pNumbersList
+   -- fast path in case of LiveCode 6.1 or newer
+   if sLC61OrNewer then return harmonicMean(pNumbersList)
+   -- slow path in older versions
    local tCount
    if pNumbersList is an array then
       put the number of elements in pNumbersList into tCount
@@ -118,10 +140,16 @@ function qrtSTAT_HarmonicMean pNumbersList
 end qrtSTAT_HarmonicMean
 
 function qrtSTAT_PopulationStandardDeviation pNumbersList
+   -- fast path in case of LiveCode 6.1 or newer
+   if sLC61OrNewer then return populationStandardDeviation(pNumbersList)
+   -- slow path in older versions
    return sqrt(qrtSTAT_PopulationVariance(pNumbersList))
 end qrtSTAT_PopulationStandardDeviation
 
 function qrtSTAT_PopulationVariance pNumbersList
+   -- fast path in case of LiveCode 6.1 or newer
+   if sLC61OrNewer then return populationVariance(pNumbersList)
+   -- slow path in older versions
    local tCount
    if pNumbersList is an array then
       put the number of elements in pNumbersList into tCount
@@ -146,3 +174,11 @@ function qrtSTAT_PopulationVariance pNumbersList
       return tDeviationSum / tCount
    end if
 end qrtSTAT_PopulationVariance
+
+--> private commands and functions
+
+private command p_qrtSTAT_ResetAll
+   set the itemDelimiter to "."
+   put (item 1 to 2 of the version) >= 6.1 into sLC61OrNewer
+   put (item 1 to 2 of the version) >= 6.6 into sLC66OrNewer
+end p_qrtSTAT_ResetAll
