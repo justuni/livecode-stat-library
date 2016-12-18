@@ -261,6 +261,18 @@ function qrtSTAT_Quartiles pNumbersList, pQuartileAlgorithm
    return p_qrtSTAT_Quartiles(pNumbersList, pQuartileAlgorithm, true, true, true)
 end qrtSTAT_Quartiles
 
+function qrtSTAT_Trimean pNumbersList, pQuartileAlgorithm
+   if pQuartileAlgorithm is empty then
+      put sDefaultsA[kDefaultQuartileAlgorithm] into pQuartileAlgorithm
+   else
+      p_qrtSTAT_AssertQuartileAlgorithm pQuartileAlgorithm
+   end if
+   --
+   local tQuartiles
+   put p_qrtSTAT_Quartiles(pNumbersList, pQuartileAlgorithm, true, true, true) into tQuartiles
+   return ((item 1 of tQuartiles) + 2 * (item 2 of tQuartiles) + (item 3 of tQuartiles)) / 4
+end qrtSTAT_Trimean
+
 --> private commands and functions
 
 private command p_qrtSTAT_ResetAll
