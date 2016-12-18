@@ -40,13 +40,6 @@ function qrtSTAT_VersionNumber
 end qrtSTAT_VersionNumber
 
 function qrtSTAT_AverageDeviation pNumbersList
-   local tIndex
-   if the paramCount > 1 then
-      repeat with tIndex = 2 to the paramCount
-         put comma & param(tIndex) after pNumbersList
-      end repeat
-   end if
-   --
    local tCount
    if pNumbersList is an array then
       put the number of elements in pNumbersList into tCount
@@ -73,13 +66,6 @@ function qrtSTAT_AverageDeviation pNumbersList
 end qrtSTAT_AverageDeviation
 
 function qrtSTAT_GeometricMean pNumbersList
-   local tIndex
-   if the paramCount > 1 then
-      repeat with tIndex = 2 to the paramCount
-         put comma & param(tIndex) after pNumbersList
-      end repeat
-   end if
-   --
    local tCount
    if pNumbersList is an array then
       put the number of elements in pNumbersList into tCount
@@ -107,13 +93,6 @@ function qrtSTAT_GeometricMean pNumbersList
 end qrtSTAT_GeometricMean
 
 function qrtSTAT_HarmonicMean pNumbersList
-   local tIndex
-   if the paramCount > 1 then
-      repeat with tIndex = 2 to the paramCount
-         put comma & param(tIndex) after pNumbersList
-      end repeat
-   end if
-   --
    local tCount
    if pNumbersList is an array then
       put the number of elements in pNumbersList into tCount
@@ -143,13 +122,6 @@ function qrtSTAT_PopulationStandardDeviation pNumbersList
 end qrtSTAT_PopulationStandardDeviation
 
 function qrtSTAT_PopulationVariance pNumbersList
-   local tIndex
-   if the paramCount > 1 then
-      repeat with tIndex = 2 to the paramCount
-         put comma & param(tIndex) after pNumbersList
-      end repeat
-   end if
-   --
    local tCount
    if pNumbersList is an array then
       put the number of elements in pNumbersList into tCount
