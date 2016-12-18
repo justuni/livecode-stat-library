@@ -139,6 +139,30 @@ function qrtSTAT_HarmonicMean pNumbersList
    end if
 end qrtSTAT_HarmonicMean
 
+function qrtSTAT_Mode pNumbersList
+   local tNumber, tNumberOccurencesA
+   if pNumbersList is an array then
+      repeat for each element tNumber in pNumbersList
+         add 1 to tNumberOccurencesA[tNumber]
+      end repeat
+   else
+      repeat for each item tNumber in pNumbersList
+         add 1 to tNumberOccurencesA[tNumber]
+      end repeat
+   end if
+   --
+   local tMaxOccurences
+   put max(tNumberOccurencesA) into tMaxOccurences
+   --
+   local tMode
+   repeat for each key tNumber in tNumberOccurencesA
+      if tNumberOccurencesA[tNumber] = tMaxOccurences then
+         put tNumber & comma after tMode
+      end if
+   end repeat
+   return char 1 to -2 of tMode -- strip off trailing comma
+end qrtSTAT_Mode
+
 function qrtSTAT_PopulationStandardDeviation pNumbersList
    -- fast path in case of LiveCode 6.1 or newer
    if sLC61OrNewer then return populationStandardDeviation(pNumbersList)
