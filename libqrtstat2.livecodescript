@@ -167,6 +167,18 @@ function qrtSTAT_HarmonicMean pNumbersList
    end if
 end qrtSTAT_HarmonicMean
 
+function qrtSTAT_InterQuartileRange pNumbersList, pQuartileAlgorithm
+   if pQuartileAlgorithm is empty then
+      put sDefaultsA[kDefaultQuartileAlgorithm] into pQuartileAlgorithm
+   else
+      p_qrtSTAT_AssertQuartileAlgorithm pQuartileAlgorithm
+   end if
+   --
+   local tQuartiles
+   put p_qrtSTAT_Quartiles(pNumbersList, pQuartileAlgorithm, true, false, true) into tQuartiles
+   return (item 3 of tQuartiles) - (item 1 of tQuartiles)
+end qrtSTAT_InterQuartileRange
+
 function qrtSTAT_Mode pNumbersList
    local tNumber, tNumberOccurencesA
    if pNumbersList is an array then
