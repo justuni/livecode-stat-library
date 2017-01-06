@@ -119,6 +119,21 @@ function qrtSTAT_Capability pNumbersList, pSpecLowerLimit, pSpecUpperLimit
    end if
 end qrtSTAT_Capability
 
+function qrtSTAT_CapabilityIndex pNumbersList, pSpecLowerLimit, pSpecUpperLimit
+   local tAverage, tThreeSigma
+   put average(pNumbersList) into tAverage
+   put 3 * standardDeviation(pNumbersList) into tThreeSigma
+   if tThreeSigma <> 0 then
+      local tCPKHigh, tCPKLow
+      put (pSpecUpperLimit - tAverage) / tThreeSigma into tCPKHigh
+      put (tAverage - pSpecLowerLimit) / tThreeSigma into tCPKLow
+      return min(tCPKLow, tCPKHigh)
+   else
+      return 0
+   end if
+   return (tAverage - tThreeSigma),(tAverage + tThreeSigma)
+end qrtSTAT_CapabilityIndex
+
 function qrtSTAT_ControlLimits pNumbersList
    local tAverage, tThreeSigma
    put average(pNumbersList) into tAverage
