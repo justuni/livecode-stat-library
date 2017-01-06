@@ -109,6 +109,16 @@ function qrtSTAT_AverageDeviation pNumbersList
    end if
 end qrtSTAT_AverageDeviation
 
+function qrtSTAT_Capability pNumbersList, pSpecLowerLimit, pSpecUpperLimit
+   local tSixSigma
+   put 6 * standardDeviation(pNumbersList) into tSixSigma
+   if tSixSigma <> 0 then
+      return (pSpecUpperLimit - pSpecLowerLimit) / tSixSigma
+   else
+      return 0
+   end if
+end qrtSTAT_Capability
+
 function qrtSTAT_ControlLimits pNumbersList
    local tAverage, tThreeSigma
    put average(pNumbersList) into tAverage
