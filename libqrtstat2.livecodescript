@@ -116,6 +116,21 @@ function qrtSTAT_ControlLimits pNumbersList
    return (tAverage - tThreeSigma),(tAverage + tThreeSigma)
 end qrtSTAT_ControlLimits
 
+function qrtSTAT_FamilyLimits pNumbersList, pQuartileAlgorithm
+   if pQuartileAlgorithm is empty then
+      put sDefaultsA[kDefaultQuartileAlgorithm] into pQuartileAlgorithm
+   else
+      p_qrtSTAT_AssertQuartileAlgorithm pQuartileAlgorithm
+   end if
+   --
+   local tQuartiles, tFirstQuartile, tThirdQuartile, tInterQuartileRange
+   put p_qrtSTAT_Quartiles(pNumbersList, pQuartileAlgorithm, true, false, true) into tQuartiles
+   put item 1 of tQuartiles into tFirstQuartile
+   put item 3 of tQuartiles into tThirdQuartile
+   put tThirdQuartile - tFirstQuartile into tInterQuartileRange
+   return (tFirstQuartile - 1.5 * tInterQuartileRange),(tThirdQuartile + 1.5 * tInterQuartileRange)
+end qrtSTAT_FamilyLimits
+
 function qrtSTAT_GeometricMean pNumbersList
    -- fast path in case of LiveCode 6.1 or newer
    if sLC61OrNewer then return geometricMean(pNumbersList)
