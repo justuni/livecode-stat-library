@@ -109,6 +109,13 @@ function qrtSTAT_AverageDeviation pNumbersList
    end if
 end qrtSTAT_AverageDeviation
 
+function qrtSTAT_ControlLimits pNumbersList
+   local tAverage, tThreeSigma
+   put average(pNumbersList) into tAverage
+   put 3 * standardDeviation(pNumbersList) into tThreeSigma
+   return (tAverage - tThreeSigma),(tAverage + tThreeSigma)
+end qrtSTAT_ControlLimits
+
 function qrtSTAT_GeometricMean pNumbersList
    -- fast path in case of LiveCode 6.1 or newer
    if sLC61OrNewer then return geometricMean(pNumbersList)
