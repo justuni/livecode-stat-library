@@ -23,6 +23,12 @@ For more information, please contact Quartam Software at this address:
 licenses@quartam.com
 */
 
+/*	
+ACKNOWLEDGEMENTS:
+- Quartile algorithms adapted from: https://en.wikipedia.org/wiki/Quartile
+- Control limits, family limits, capability algorithms adapted from: http://www.jlion.com/docs/statscalcs.aspx
+*/
+
 --> constants
 
 constant kLibVersion = "2.0.0"
